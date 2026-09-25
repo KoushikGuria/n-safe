@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // =========================================================================
+    // 1. PUBLIC PROFILES COLLECTION
+    // publicProfiles/{qrId}
+    // Document ID is strictly the user's qrId (e.g. u_6uzfx80hdy)
+    // Only contains public information: qrId, userId, name, phone
+    // =========================================================================
+    match /publicProfiles/{qrId} {
+      // Unauthenticated visitors scanning the QR code can read this document
+      allow read: if true;
+
+      // Only the authenticated owner can create their public profile document
+      allow create: if isAuthenticated()
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.qrId == qrId
+                    && request.resource.data.name is string
+                    && request.resource.data.phone is string;
+
+      // Only the owner can update their public profile
+      allow update: if isAuthenticated()
+                    && (resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid)
+                    && request.resource.data.qrId == qrId;
+
+      // Only the owner can delete their public profile
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // =========================================================================
+    // 2. USERS COLLECTION (Private User Profiles)
+    // users/{userId}
+    // Document ID is the Firebase Auth UID
+    // Contains private data: email, address, etc.
+    // =========================================================================
+    match /users/{userId} {
+      // Strictly only the authenticated owner can read or write their own user profile
+      allow read, write: if isOwner(userId);
+    }
+
+    // =========================================================================
+    // 3. MESSAGES COLLECTION
+    // messages/{messageId}
+    // =========================================================================
+    match /messages/{messageId} {
+      // Anonymous visitors can create a message
+      allow create: if request.resource.data.message is string
+                    && request.resource.data.message.size() > 0
+                    && request.resource.data.message.size() <= 1000
+                    && request.resource.data.userId is string
+                    && request.resource.data.qrId is string
+                    && request.resource.data.status == 'new';
+
+      // Only the recipient (owner of the profile) can read their messages
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
+
+      // Only the recipient can update (e.g. mark as read) or delete their messages
+      allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+  }
+}

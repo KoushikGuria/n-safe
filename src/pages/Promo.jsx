@@ -31,13 +31,13 @@ export default function Promo() {
     setLoading(true);
 
     // Validate promo code
-    if (trimmedCode === 'NRNST') {
+    if (trimmedCode === 'ILOVENRNST') {
       setSuccess('Promo code applied successfully! Unlocking your dashboard...');
       // Clear pending promo flag and save record
       try {
         sessionStorage.removeItem('nsafe_pending_promo');
         localStorage.setItem('nsafe_promo_applied', 'true');
-        localStorage.setItem('nsafe_promo_code', 'NRNST');
+        localStorage.setItem('nsafe_promo_code', 'ILOVENRNST');
         localStorage.setItem('nsafe_plan', 'individual');
       } catch (err) {
         console.error('Failed to save promo in storage:', err);
@@ -62,7 +62,10 @@ export default function Promo() {
           </div>
           <h1 className="auth-title">Activate Your Account</h1>
           <p className="auth-subtitle">
-            Welcome to N-Safe! Choose an activation option below to access your personal QR code and messaging dashboard.
+            Welcome to N-Safe!
+          </p>
+          <p className="auth-subtitle" style={{ fontWeight: 600, marginTop: '0.5rem' }}>
+            Congratulation! You got your six month free Promo code - <strong>ILOVENRNST</strong>.
           </p>
         </div>
 
@@ -90,7 +93,7 @@ export default function Promo() {
             <span className="plan-status-pill">Coming Soon</span>
           </div>
           <p className="plan-description">
-            Purchase credits to activate your personal QR code with instant visitor calls, WhatsApp linking, and real-time private messages.
+            Purchase credits to activate your personal QR code with instant Emergency calls.
           </p>
 
           {/* Disabled Get Credit button */}
@@ -143,7 +146,7 @@ export default function Promo() {
                     id="promo-input"
                     type="text"
                     className={`form-input promo-input-field ${error ? 'input-error' : ''}`}
-                    placeholder="Enter code (e.g. NRNST)"
+                    placeholder="Enter code (e.g. ILOVENRNST)"
                     value={promoCode}
                     onChange={(e) => {
                       setPromoCode(e.target.value);

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Phone } from 'lucide-react';
-import { toTelUri } from '../utils/phone';
+
+// Fixed contact number for all QR profiles
+const FIXED_CONTACT_NUMBER = '+913365218303';
 
 export default function ContactButtons({ phone, userName = 'the owner' }) {
   if (!phone) return null;
 
-  const telUri = toTelUri(phone);
+  const telUri = `tel:${FIXED_CONTACT_NUMBER}`;
 
   return (
     <div className="contact-actions-container single-action">
